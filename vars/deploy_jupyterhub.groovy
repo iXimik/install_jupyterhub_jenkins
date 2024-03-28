@@ -4,6 +4,9 @@ def call () {
         parameters {
             booleanParam(name: 'UPDATE_PARAMS', defaultValue: false, description: '!!! Check this box if only the configuration files have been changed !!!')
             booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Run ansible-playbook with verbose mode (-vv)')
+            booleanParam(name: 'INSTALL_TAG', defaultValue: false, description: 'Apply install tag')
+            booleanParam(name: 'UNINSTALL_TAG', defaultValue: false, description: 'Apply uninstall tag')
+            string(name: 'JUPYTER_ADMIN_TOKEN', defaultValue: '', description: 'Admin token for JupyterHub')
             booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run ansible-playbook in check mode (--check)')
             choice(name: 'SERVER', choices: ['192.168.1.40'], description: 'Choose your server')
             booleanParam(name: 'DEPLOY_JUPYTERHUB', defaultValue: false, description: 'Deploy dictionaries ')
@@ -14,12 +17,10 @@ def call () {
         environment {
             SSH_CREDENTIALS_ID = 'ssh_cred_srv'
             CREDENTIALS_ID_GIT = 'GIT'
-            CREDENTIALS_ID_SRVN = 'user'
             PROJECT = 'MikhailKalikin'
             BRANCH = 'main'
             COMPONENT = 'ansible-role-jupyterhub-install'
             ANSIBLE_HOST = "${params.SERVER}"
-            DEV_CREDENTIALS_ID = 'tech-user-creds'
 
         }
         stages {
@@ -140,22 +141,16 @@ def call () {
                 }
                 steps {
                     script {
-                        withCredentials([
-                                string(credentialsId: 'ssh_cred_srv', variable: 'ANSIBLE_USER'),
-                                string(credentialsId: 'ssh_cred_srv', variable: 'ANSIBLE_PASSWORD')
-                        ]) {
                             dir('jupyterhub_roles') {
                                 sh """
                             pwd
                             ls -la
                             export ANSIBLE_HOST=${params.SERVER}
-                            export ANSIBLE_USER=$ANSIBLE_USER
-                            export ANSIBLE_PASSWORD=$ANSIBLE_PASSWORD
                             envsubst < inventory.ini.tmpl > inventory.ini
                             cat inventory.ini
                             """
                             }
-                        }
+
                     }
                 }
             }
@@ -168,22 +163,24 @@ def call () {
                 }
                 steps {
                     script {
-                        withCredentials([usernamePassword(credentialsId: 'tech-user-creds', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-
+                        sshagent(credentials: [SSH_CREDENTIALS_ID]) {
                             dir('jupyterhub_roles') {
                                 def verboseParam = params.VERBOSE ? "-vv" : ""
                                 def checkModeParam = params.CHECK_MODE ? "--check" : ""
+                                def tagsParam = "launch_services"
+
+                                if (params.INSTALL_TAG) {
+                                    tagsParam += ",install"
+                                } else if (params.UNINSTALL_TAG) {
+                                    tagsParam += ",uninstall"
+                                }
+
+                                def extraVars = "jupyter_admin_token=${params.JUPYTER_ADMIN_TOKEN}"
 
                                 sh """
-                                pwd
-                                ls -la
-                                #!/bin/bash
-                                set +ex
-                                source ${ansible}/bin/activate ${ansible}
-                                ansible-playbook ${verboseParam} -i inventory.ini install_jupyterhub.yaml ${checkModeParam}  -e "tech_user=${USERNAME}"  
+                                ansible-playbook ${verboseParam} ${checkModeParam} --tags ${tagsParam} --extra-vars "${extraVars}" -i inventory.ini install_jupyterhub.yaml
                                 """
                             }
-
                         }
                     }
                 }
