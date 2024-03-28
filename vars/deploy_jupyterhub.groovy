@@ -143,11 +143,10 @@ def call () {
                     script {
                             dir('jupyterhub_roles') {
                                 sh """
-                            pwd
-                            ls -la
-                            export ANSIBLE_HOST=${params.SERVER}
-                            envsubst < inventory.ini.tmpl > inventory.ini
-                            cat inventory.ini
+                                pwd
+                                ls -la
+                                sed -i 's/JUPYTER_HOST/${params.SERVER}/' inventory.ini
+                                cat inventory.ini
                             """
                             }
 
