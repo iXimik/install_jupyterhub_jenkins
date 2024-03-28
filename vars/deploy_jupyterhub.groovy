@@ -3,14 +3,17 @@ def call () {
         agent any
         parameters {
             booleanParam(name: 'UPDATE_PARAMS', defaultValue: false, description: '!!! Check this box if only the configuration files have been changed !!!')
-            booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Run ansible-playbook with verbose mode (-vv)')
-            booleanParam(name: 'INSTALL_TAG', defaultValue: false, description: 'Apply install tag')
-            booleanParam(name: 'UNINSTALL_TAG', defaultValue: false, description: 'Apply uninstall tag')
-            string(name: 'JUPYTER_ADMIN_TOKEN', defaultValue: '', description: 'Admin token for JupyterHub')
-            booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run ansible-playbook in check mode (--check)')
             choice(name: 'SERVER', choices: ['192.168.1.40'], description: 'Choose your server')
             booleanParam(name: 'DEPLOY_JUPYTERHUB', defaultValue: false, description: 'Deploy dictionaries ')
             booleanParam(name: 'RESTART_JUPYTERHUB', defaultValue: false, description: 'Restart service suggestions')
+            booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Run ansible-playbook with verbose mode (-vv)')
+            booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run ansible-playbook in check mode (--check)')
+            booleanParam(name: 'INSTALL_TAG', defaultValue: false, description: 'Apply install tag')
+            booleanParam(name: 'UNINSTALL_TAG', defaultValue: false, description: 'Apply uninstall tag')
+            booleanParam(name: 'LAUNCH_SERVICE_TAG', defaultValue: false, description: 'Launch services with Ansible')
+            string(name: 'JUPYTER_ADMIN_TOKEN', defaultValue: '', description: 'Admin token for JupyterHub')
+
+
 
         }
 
@@ -166,12 +169,13 @@ def call () {
                             dir('jupyterhub_roles') {
                                 def verboseParam = params.VERBOSE ? "-vv" : ""
                                 def checkModeParam = params.CHECK_MODE ? "--check" : ""
-                                def tagsParam = "launch_services"
+                                def tagsParam = params.LAUNCH_SERVICE_TAG ? "launch_services" : ""
 
                                 if (params.INSTALL_TAG) {
-                                    tagsParam += ",install"
-                                } else if (params.UNINSTALL_TAG) {
-                                    tagsParam += ",uninstall"
+                                    tagsParam += tagsParam ? ",install" : "install"
+                                }
+                                if (params.UNINSTALL_TAG) {
+                                    tagsParam += tagsParam ? ",uninstall" : "uninstall"
                                 }
 
                                 def extraVars = "jupyter_admin_token=${params.JUPYTER_ADMIN_TOKEN}"
