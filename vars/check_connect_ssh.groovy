@@ -2,8 +2,9 @@ def call () {
     pipeline {
         agent any
         parameters {
+            booleanParam(name: 'UPDATE_PARAMS', defaultValue: false, description: '!!! Check this box if only the configuration files have been changed !!!')
             booleanParam(name: 'CHECK_CONNECTION', defaultValue: true, description: 'Check SSH Connection')
-            choice(name: 'SERVER', choices: ['setup'], description: 'Выберите сервер')
+            choice(name: 'SERVER', choices: ['192.168.1.10'], description: 'Выберите сервер для установки')
 
 
         }
@@ -13,6 +14,16 @@ def call () {
 
         }
         stages {
+
+            stage('Check Ansible Version') {
+                when {
+                    expression { params.UPDATE_PARAMS == true }
+                }
+                steps {
+                    sh 'ansible --version'
+                }
+            }
+
             stage('Check SSH Connection') {
                 when {
                     allOf {
@@ -36,6 +47,11 @@ def call () {
             }
 
 
+        }
+        post {
+            always {
+                cleanWs()
+            }
         }
     }
 }
