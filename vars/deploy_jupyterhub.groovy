@@ -5,7 +5,7 @@ def call () {
             booleanParam(name: 'UPDATE_PARAMS', defaultValue: false, description: '!!! Check this box if only the configuration files have been changed !!!')
             booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Run ansible-playbook with verbose mode (-vv)')
             booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run ansible-playbook in check mode (--check)')
-            choice(name: 'SERVER', choices: ['192.168.1.10'], description: 'Choose your server')
+            choice(name: 'SERVER', choices: ['192.168.1.40'], description: 'Choose your server')
             booleanParam(name: 'DEPLOY_JUPYTERHUB', defaultValue: false, description: 'Deploy dictionaries ')
             booleanParam(name: 'RESTART_JUPYTERHUB', defaultValue: false, description: 'Restart service suggestions')
 
@@ -141,8 +141,8 @@ def call () {
                 steps {
                     script {
                         withCredentials([
-                                string(credentialsId: 'ansible-user-id', variable: 'ANSIBLE_USER'),
-                                string(credentialsId: 'ansible-password-id', variable: 'ANSIBLE_PASSWORD')
+                                string(credentialsId: 'ssh_cred_srv', variable: 'ANSIBLE_USER'),
+                                string(credentialsId: 'ssh_cred_srv', variable: 'ANSIBLE_PASSWORD')
                         ]) {
                             dir('jupyterhub_roles') {
                                 sh """
