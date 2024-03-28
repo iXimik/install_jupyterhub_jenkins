@@ -5,7 +5,7 @@ def call () {
             booleanParam(name: 'UPDATE_PARAMS', defaultValue: false, description: '!!! Check this box if only the configuration files have been changed !!!')
             choice(name: 'SERVER', choices: ['192.168.1.40'], description: 'Choose your server')
             booleanParam(name: 'DEPLOY_JUPYTERHUB', defaultValue: false, description: 'Deploy JupyterHub ')
-            booleanParam(name: 'RESTART_JUPYTERHUB', defaultValue: false, description: 'Restart service suggestions')
+            booleanParam(name: 'RESTART_JUPYTERHUB', defaultValue: false, description: 'Restart service JupyterHub')
             booleanParam(name: 'VERBOSE', defaultValue: false, description: 'Run ansible-playbook with verbose mode (-vv)')
             booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run ansible-playbook in check mode (--check)')
             booleanParam(name: 'INSTALL_TAG', defaultValue: false, description: 'Apply install tag')
