@@ -166,31 +166,28 @@ def call () {
                 steps {
                     script {
                         sshagent(credentials: [SSH_CREDENTIALS_ID]) {
-                            withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
-                                dir('jupyterhub_roles') {
-                                    def verboseParam = params.VERBOSE ? "-vv" : ""
-                                    def checkModeParam = params.CHECK_MODE ? "--check" : ""
-                                    def tagsParam = params.LAUNCH_SERVICE_TAG ? "launch_services" : ""
+                            dir('jupyterhub_roles') {
+                                def verboseParam = params.VERBOSE ? "-vv" : ""
+                                def checkModeParam = params.CHECK_MODE ? "--check" : ""
+                                def tagsParam = params.LAUNCH_SERVICE_TAG ? "launch_services" : ""
 
-                                    if (params.INSTALL_TAG) {
-                                        tagsParam += tagsParam ? ",install" : "install"
-                                    }
-                                    if (params.UNINSTALL_TAG) {
-                                        tagsParam += tagsParam ? ",uninstall" : "uninstall"
-                                    }
-
-                                    def extraVars = "jupyter_admin_token=${params.JUPYTER_ADMIN_TOKEN} ansible_become_pass=${SUDO_PASSWORD}"
-
-                                    sh """
-                                    ansible-playbook ${verboseParam} ${checkModeParam} --tags ${tagsParam} --extra-vars "${extraVars}" -i inventory.ini install_jupyterhub.yaml
-                                    """
+                                if (params.INSTALL_TAG) {
+                                    tagsParam += tagsParam ? ",install" : "install"
                                 }
+                                if (params.UNINSTALL_TAG) {
+                                    tagsParam += tagsParam ? ",uninstall" : "uninstall"
+                                }
+
+                                def extraVars = "jupyter_admin_token=${params.JUPYTER_ADMIN_TOKEN}"
+
+                                sh """
+                                ansible-playbook ${verboseParam} ${checkModeParam} --tags ${tagsParam} --extra-vars "${extraVars}" -i inventory.ini install_jupyterhub.yaml
+                                """
                             }
                         }
                     }
                 }
             }
-
 
 
 
