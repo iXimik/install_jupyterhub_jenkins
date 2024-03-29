@@ -166,7 +166,7 @@ def call () {
                 steps {
                     script {
                         sshagent(credentials: [SSH_CREDENTIALS_ID]) {
-                            withCredentials([string(credentialsId: 'sudo-password-credential-id', variable: 'SUDO_PASSWORD')]) {
+                            withCredentials([string(credentialsId: 'sudo-password', variable: 'SUDO_PASSWORD')]) {
                                 dir('jupyterhub_roles') {
                                     def verboseParam = params.VERBOSE ? "-vv" : ""
                                     def checkModeParam = params.CHECK_MODE ? "--check" : ""
