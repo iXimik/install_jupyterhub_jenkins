@@ -4,12 +4,12 @@ def call () {
         parameters {
             booleanParam(name: 'UPDATE_PARAMS', defaultValue: false, description: '!!! Check this box if only the configuration files have been changed !!!')
             booleanParam(name: 'CHECK_CONNECTION', defaultValue: true, description: 'Check SSH Connection')
-            choice(name: 'SERVER', choices: ['192.168.1.40'], description: 'Выберите сервер для установки')
+            choice(name: 'SERVER', choices: ['1.1.1.27'], description: 'Выберите сервер для установки')
 
 
         }
         environment {
-            SSH_CREDENTIALS_ID = 'ssh_cred_srv'
+            SSH_CREDENTIALS_ID = 'ssh_key_j2'
             CREDENTIALS_ID_GIT = 'git'
 
         }
